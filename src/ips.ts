@@ -40,7 +40,7 @@ export function patch(inputBytes: Uint8Array, patchBytes: Uint8Array): Uint8Arra
 		const payloadLength = bytesToNumber(plLengthSlice);
 
 		if (payloadLength > 0) {
-			// Regular hunk, payload is written at offset
+			// Regular record, payload is written at offset
 			const payloadSlice = patchBytes.slice(ptr, ptr + payloadLength);
 
 			for (let i = 0; i < payloadLength; i++) {
@@ -49,7 +49,7 @@ export function patch(inputBytes: Uint8Array, patchBytes: Uint8Array): Uint8Arra
 
 			ptr += payloadLength;
 		} else {
-			// RLE hunk, byte is written an amount of times
+			// RLE record, byte is written an amount of times
 			const runLengthSlice = patchBytes.slice(ptr, ptr + IPS_RUN_LENGTH_SIZE);
 			ptr += IPS_RUN_LENGTH_SIZE;
 
