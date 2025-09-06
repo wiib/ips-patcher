@@ -1,0 +1,7 @@
+# Prettier defaults
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+
+**/public

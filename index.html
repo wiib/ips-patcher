@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>IPS Patcher</title>
+	</head>
+	<body>
+		<div id="app">
+			<form id="form" autocomplete="off">
+				<label for="input_file">Input ROM</label>
+				<input type="file" name="input_file" id="input_file" multiple="false" />
+
+				<label for="input_patch">Input patch</label>
+				<input type="file" name="input_patch" id="input_patch" multiple="false" />
+
+				<button type="submit">Patch!</button>
+			</form>
+		</div>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
