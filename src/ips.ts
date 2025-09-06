@@ -27,8 +27,6 @@ export function patch(inputBytes: Uint8Array, patchBytes: Uint8Array): Uint8Arra
 	const patchedBytes = Array.from(inputBytes);
 	let ptr = 5;
 
-	console.log(patchBytes.length);
-
 	while (ptr < patchBytes.length) {
 		const offsetSlice = patchBytes.slice(ptr, ptr + IPS_OFFSET_SIZE);
 		ptr += IPS_OFFSET_SIZE;

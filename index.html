@@ -8,15 +8,27 @@
 	</head>
 	<body>
 		<div id="app">
-			<form id="form" autocomplete="off">
-				<label for="input_file">Input ROM</label>
-				<input type="file" name="input_file" id="input_file" multiple="false" />
+			<h1>ROM Patcher</h1>
+			<div class="card">
+				<form id="form" autocomplete="off">
+					<h2>Files</h2>
 
-				<label for="input_patch">Input patch</label>
-				<input type="file" name="input_patch" id="input_patch" multiple="false" />
+					<fieldset>
+						<label for="input_file">Input ROM: </label>
+						<input type="file" name="input_file" id="input_file" multiple="false" />
+					</fieldset>
 
-				<button type="submit">Patch!</button>
-			</form>
+					<fieldset>
+						<label for="input_patch">Input patch: </label>
+						<input type="file" name="input_patch" id="input_patch" multiple="false" />
+					</fieldset>
+
+					<button type="submit">Patch!</button>
+				</form>
+			</div>
+
+			<h2>Log</h2>
+			<pre id="log"></pre>
 		</div>
 		<script type="module" src="/src/main.ts"></script>
 	</body>

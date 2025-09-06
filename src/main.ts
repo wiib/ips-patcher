@@ -1,6 +1,7 @@
 import "./style.css";
 
 import { patch } from "./ips.ts";
+import Logger from "./logger.ts";
 
 let inputFile: Uint8Array | undefined = undefined;
 let patchFile: Uint8Array | undefined = undefined;
@@ -9,6 +10,13 @@ let inputExt: string = "bin";
 
 let outputFilename: string = "PatchedROM";
 let outputExt: string = "bin";
+
+const logger = Logger.instance;
+
+document.addEventListener("DOMContentLoaded", (ev) => {
+	const preElement = document.querySelector<HTMLPreElement>("#log")!;
+	logger.setDestination(preElement);
+});
 
 document.querySelector<HTMLInputElement>("#input_file")!.addEventListener("change", (ev) => {
 	const target = ev.target as HTMLInputElement;
@@ -26,6 +34,8 @@ document.querySelector<HTMLInputElement>("#input_file")!.addEventListener("chang
 		(ev) => {
 			const dataBuffer = ev.target?.result as ArrayBuffer;
 			inputFile = new Uint8Array(dataBuffer);
+
+			logger.println(`Loaded ROM: ${file.name}`);
 		},
 		{ once: true }
 	);
@@ -57,6 +67,8 @@ document.querySelector<HTMLInputElement>("#input_patch")!.addEventListener("chan
 		(ev) => {
 			const dataBuffer = ev.target?.result as ArrayBuffer;
 			patchFile = new Uint8Array(dataBuffer);
+
+			logger.println(`Loaded patch: ${file.name}`);
 		},
 		{ once: true }
 	);
@@ -78,6 +90,9 @@ document.querySelector<HTMLFormElement>("#form")!.addEventListener("submit", (ev
 	if (!inputFile || !patchFile) throw new Error("Invalid input or patch file");
 
 	const patchedBytes = patch(inputFile, patchFile);
+
+	logger.println(`ROM patched successfully!`);
+	logger.println(`Proceeding to download patched ROM...`);
 
 	const blob = new Blob([patchedBytes.buffer as BlobPart], { type: "application/octet-stream" });
 	const blobUrl = URL.createObjectURL(blob);
