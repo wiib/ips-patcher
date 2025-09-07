@@ -1,10 +1,7 @@
 import "./style.css";
 
-import { patch } from "./ips.ts";
+import IPSPatcher from "./patchers/ips.ts";
 import Logger from "./logger.ts";
-
-let inputFile: Uint8Array | undefined = undefined;
-let patchFile: Uint8Array | undefined = undefined;
 
 let inputExt: string = "bin";
 
@@ -12,6 +9,7 @@ let outputFilename: string = "PatchedROM";
 let outputExt: string = "bin";
 
 const logger = Logger.instance;
+const ipsPatcher = new IPSPatcher();
 
 document.addEventListener("DOMContentLoaded", (ev) => {
 	const preElement = document.querySelector<HTMLPreElement>("#log")!;
@@ -24,31 +22,9 @@ document.querySelector<HTMLInputElement>("#input_file")!.addEventListener("chang
 	if (!target.files) throw new Error("No files in change event");
 
 	const file = target.files[0];
+	ipsPatcher.loadRomFile(file);
 
 	inputExt = file.name.split(".").pop()!;
-
-	const reader = new FileReader();
-
-	reader.addEventListener(
-		"load",
-		(ev) => {
-			const dataBuffer = ev.target?.result as ArrayBuffer;
-			inputFile = new Uint8Array(dataBuffer);
-
-			logger.println(`Loaded ROM: ${file.name}`);
-		},
-		{ once: true }
-	);
-
-	reader.addEventListener(
-		"error",
-		(ev) => {
-			throw ev.target?.error;
-		},
-		{ once: true }
-	);
-
-	reader.readAsArrayBuffer(file);
 });
 
 document.querySelector<HTMLInputElement>("#input_patch")!.addEventListener("change", (ev) => {
@@ -57,50 +33,32 @@ document.querySelector<HTMLInputElement>("#input_patch")!.addEventListener("chan
 	if (!target.files) throw new Error("No files in change event");
 
 	const file = target.files[0];
+	ipsPatcher.loadPatchFile(file);
 
 	outputFilename = file.name.split(".").slice(0, -1).join(".");
-
-	const reader = new FileReader();
-
-	reader.addEventListener(
-		"load",
-		(ev) => {
-			const dataBuffer = ev.target?.result as ArrayBuffer;
-			patchFile = new Uint8Array(dataBuffer);
-
-			logger.println(`Loaded patch: ${file.name}`);
-		},
-		{ once: true }
-	);
-
-	reader.addEventListener(
-		"error",
-		(ev) => {
-			throw ev.target?.error;
-		},
-		{ once: true }
-	);
-
-	reader.readAsArrayBuffer(file);
 });
 
 document.querySelector<HTMLFormElement>("#form")!.addEventListener("submit", (ev) => {
 	ev.preventDefault();
 
-	if (!inputFile || !patchFile) throw new Error("Invalid input or patch file");
+	try {
+		const patchedBytes = ipsPatcher.patch();
 
-	const patchedBytes = patch(inputFile, patchFile);
+		logger.println(`ROM patched successfully!`);
+		logger.println(`Proceeding to download patched ROM...`);
 
-	logger.println(`ROM patched successfully!`);
-	logger.println(`Proceeding to download patched ROM...`);
+		const blob = new Blob([patchedBytes.buffer as BlobPart], {
+			type: "application/octet-stream",
+		});
+		const blobUrl = URL.createObjectURL(blob);
 
-	const blob = new Blob([patchedBytes.buffer as BlobPart], { type: "application/octet-stream" });
-	const blobUrl = URL.createObjectURL(blob);
+		outputExt = inputExt;
 
-	outputExt = inputExt;
-
-	const a = document.createElement("a");
-	a.href = blobUrl;
-	a.download = `${outputFilename}.${outputExt}`;
-	a.click();
+		const a = document.createElement("a");
+		a.href = blobUrl;
+		a.download = `${outputFilename}.${outputExt}`;
+		a.click();
+	} catch (err) {
+		if (err instanceof Error) logger.println(err.message);
+	}
 });
