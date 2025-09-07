@@ -45,7 +45,6 @@ document.querySelector<HTMLFormElement>("#form")!.addEventListener("submit", (ev
 		const patchedBytes = ipsPatcher.patch();
 
 		logger.println(`ROM patched successfully!`);
-		logger.println(`Proceeding to download patched ROM...`);
 
 		const blob = new Blob([patchedBytes.buffer as BlobPart], {
 			type: "application/octet-stream",
@@ -53,6 +52,7 @@ document.querySelector<HTMLFormElement>("#form")!.addEventListener("submit", (ev
 		const blobUrl = URL.createObjectURL(blob);
 
 		outputExt = inputExt;
+		logger.println(`Downloading ${outputFilename}.${outputExt} (${blob.size} bytes)`);
 
 		const a = document.createElement("a");
 		a.href = blobUrl;

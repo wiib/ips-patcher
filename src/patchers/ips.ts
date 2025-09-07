@@ -30,7 +30,10 @@ export default class IPSPatcher {
 			throw new Error("PATCH header not found. Patch file is not valid.");
 		}
 
+		this.logger.println("PATCH header found, patching...");
+
 		this.ptr += 5;
+		let recordCount = 0;
 
 		// 2. Apply patches
 
@@ -66,8 +69,11 @@ export default class IPSPatcher {
 				this.ptr += payloadLength;
 			}
 
+			recordCount += 1;
+
 			// Check for EOF marker
 			if (this.readString(3) == "EOF") {
+				this.logger.println(`Wrote ${recordCount} records.`);
 				this.logger.println("EOF marker reached.");
 				break;
 			}
@@ -85,7 +91,7 @@ export default class IPSPatcher {
 				const dataBuffer = ev.target?.result as ArrayBuffer;
 				this.romBuffer = new Uint8Array(dataBuffer);
 
-				this.logger.println(`Loaded ROM: ${file.name}`);
+				this.logger.println(`Loaded ROM: ${file.name} (${file.size} bytes)`);
 			},
 			{ once: true }
 		);
@@ -110,7 +116,7 @@ export default class IPSPatcher {
 				const dataBuffer = ev.target?.result as ArrayBuffer;
 				this.patchBuffer = new Uint8Array(dataBuffer);
 
-				this.logger.println(`Loaded patch: ${file.name}`);
+				this.logger.println(`Loaded patch: ${file.name} (${file.size} bytes)`);
 			},
 			{ once: true }
 		);
