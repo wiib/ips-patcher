@@ -1,23 +1,18 @@
-import Logger from "../logger";
+import Patcher from "./patcher";
 import { readNumber, readString } from "./util";
 
-export default class IPSPatcher {
+export default class IPSPatcher extends Patcher {
 	private static IPS_OFFSET_SIZE = 3;
 	private static IPS_PAYLOAD_LENGTH_SIZE = 2;
 	private static IPS_RUN_LENGTH_SIZE = 2;
-
-	private romBuffer: Uint8Array = new Uint8Array();
-	private patchBuffer: Uint8Array = new Uint8Array();
 
 	// Use a regular array since JS allows insertion at any index
 	private targetArray: number[] = [];
 
 	private ptr: number = 0;
 
-	private logger: Logger;
-
 	constructor() {
-		this.logger = Logger.instance;
+		super();
 	}
 
 	public patch(): Uint8Array {
@@ -82,55 +77,5 @@ export default class IPSPatcher {
 		}
 
 		return new Uint8Array(this.targetArray);
-	}
-
-	public loadRomFile(file: File) {
-		const reader = new FileReader();
-
-		reader.addEventListener(
-			"load",
-			(ev) => {
-				const dataBuffer = ev.target?.result as ArrayBuffer;
-				this.romBuffer = new Uint8Array(dataBuffer);
-
-				this.logger.println(`Loaded ROM: ${file.name} (${file.size} bytes)`);
-			},
-			{ once: true }
-		);
-
-		reader.addEventListener(
-			"error",
-			(ev) => {
-				throw ev.target?.error;
-			},
-			{ once: true }
-		);
-
-		reader.readAsArrayBuffer(file);
-	}
-
-	public loadPatchFile(file: File) {
-		const reader = new FileReader();
-
-		reader.addEventListener(
-			"load",
-			(ev) => {
-				const dataBuffer = ev.target?.result as ArrayBuffer;
-				this.patchBuffer = new Uint8Array(dataBuffer);
-
-				this.logger.println(`Loaded patch: ${file.name} (${file.size} bytes)`);
-			},
-			{ once: true }
-		);
-
-		reader.addEventListener(
-			"error",
-			(ev) => {
-				throw ev.target?.error;
-			},
-			{ once: true }
-		);
-
-		reader.readAsArrayBuffer(file);
 	}
 }

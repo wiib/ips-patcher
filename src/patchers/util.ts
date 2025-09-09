@@ -25,3 +25,32 @@ export function readString(buffer: Uint8Array, offset: number, length: number): 
 
 	return str;
 }
+
+/**
+ * @param file The file to read into an `Uint8Array`
+ * @returns A `Promise`, which is fulfilled once the file is full read by the `FileReader`
+ */
+export function readFileAsBytes(file: File): Promise<Uint8Array> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+
+		reader.addEventListener(
+			"load",
+			(ev) => {
+				const dataBuffer = ev.target?.result as ArrayBuffer;
+				resolve(new Uint8Array(dataBuffer));
+			},
+			{ once: true }
+		);
+
+		reader.addEventListener(
+			"error",
+			(ev) => {
+				reject(ev.target?.error);
+			},
+			{ once: true }
+		);
+
+		reader.readAsArrayBuffer(file);
+	});
+}
