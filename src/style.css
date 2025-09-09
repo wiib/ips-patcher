@@ -61,7 +61,16 @@ h2 {
 form {
 	display: flex;
 	flex-direction: column;
-	gap: 0.8rem 0;
+	gap: 0.8rem;
+}
+
+form fieldset {
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+	margin: 0;
+	padding: 0.8rem;
+	border: 2px solid #1a1a1a;
 }
 
 form fieldset label {

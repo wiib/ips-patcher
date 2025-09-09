@@ -1,17 +1,15 @@
 import "./style.css";
 
 import IPSPatcher from "./patchers/ips.ts";
+import BPSPatcher from "./patchers/bps.ts";
 import Logger from "./logger.ts";
 
-let inputExt: string = "bin";
-
-let outputFilename: string = "PatchedROM";
-let outputExt: string = "bin";
+let romFile: File | undefined = undefined;
+let patchFile: File | undefined = undefined;
 
 const logger = Logger.instance;
-const ipsPatcher = new IPSPatcher();
 
-document.addEventListener("DOMContentLoaded", (ev) => {
+document.addEventListener("DOMContentLoaded", () => {
 	const preElement = document.querySelector<HTMLPreElement>("#log")!;
 	logger.setDestination(preElement);
 });
@@ -21,10 +19,9 @@ document.querySelector<HTMLInputElement>("#input_file")!.addEventListener("chang
 
 	if (!target.files) throw new Error("No files in change event");
 
-	const file = target.files[0];
-	ipsPatcher.loadRomFile(file);
+	romFile = target.files[0];
 
-	inputExt = file.name.split(".").pop()!;
+	document.querySelector<HTMLInputElement>("#input_patch")!.disabled = false;
 });
 
 document.querySelector<HTMLInputElement>("#input_patch")!.addEventListener("change", (ev) => {
@@ -32,31 +29,62 @@ document.querySelector<HTMLInputElement>("#input_patch")!.addEventListener("chan
 
 	if (!target.files) throw new Error("No files in change event");
 
-	const file = target.files[0];
-	ipsPatcher.loadPatchFile(file);
+	patchFile = target.files[0];
 
-	outputFilename = file.name.split(".").slice(0, -1).join(".");
+	document.querySelector<HTMLButtonElement>("#button_apply")!.disabled = false;
 });
 
-document.querySelector<HTMLFormElement>("#form")!.addEventListener("submit", (ev) => {
+document.querySelector<HTMLFormElement>("#form")!.addEventListener("submit", async (ev) => {
 	ev.preventDefault();
 
+	if (!romFile) {
+		logger.println("ROM file missing.");
+		return;
+	}
+
+	if (!patchFile) {
+		logger.println("Patch file missing.");
+		return;
+	}
+
 	try {
-		const patchedBytes = ipsPatcher.patch();
+		const patchExt = patchFile.name.split(".").pop();
+		const romExt = romFile.name.split(".").pop();
+		const targetName = patchFile.name.split(".").slice(0, -1).join(".");
+
+		let patcher: IPSPatcher | BPSPatcher;
+
+		switch (patchExt?.toLowerCase()) {
+			case "ips":
+				patcher = new IPSPatcher();
+				break;
+
+			case "bps":
+				patcher = new BPSPatcher();
+				break;
+
+			default:
+				logger.println("Unknown patch file extension.");
+				return;
+		}
+
+		await patcher.loadRomFile(romFile);
+		await patcher.loadPatchFile(patchFile);
+
+		const targetBuffer = patcher.patch();
 
 		logger.println(`ROM patched successfully!`);
 
-		const blob = new Blob([patchedBytes.buffer as BlobPart], {
+		const blob = new Blob([targetBuffer.buffer as BlobPart], {
 			type: "application/octet-stream",
 		});
 		const blobUrl = URL.createObjectURL(blob);
 
-		outputExt = inputExt;
-		logger.println(`Downloading ${outputFilename}.${outputExt} (${blob.size} bytes)`);
+		logger.println(`Downloading ${targetName}.${romExt} (${blob.size} bytes)`);
 
 		const a = document.createElement("a");
 		a.href = blobUrl;
-		a.download = `${outputFilename}.${outputExt}`;
+		a.download = `${targetName}.${romExt}`;
 		a.click();
 	} catch (err) {
 		if (err instanceof Error) logger.println(err.message);
