@@ -11,7 +11,7 @@ let outputExt: string = "bin";
 const logger = Logger.instance;
 const ipsPatcher = new IPSPatcher();
 
-document.addEventListener("DOMContentLoaded", (ev) => {
+document.addEventListener("DOMContentLoaded", () => {
 	const preElement = document.querySelector<HTMLPreElement>("#log")!;
 	logger.setDestination(preElement);
 });
