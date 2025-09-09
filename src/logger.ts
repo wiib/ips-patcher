@@ -27,7 +27,6 @@ export default class Logger {
 
 	public setDestination(destination: HTMLPreElement): void {
 		this.destination = destination;
-		this.println("Logs will be written to this element.");
 	}
 
 	public println(text: string): void {
