@@ -16,7 +16,7 @@ export default class IPSPatcher extends Patcher {
 	}
 
 	public patch(): Uint8Array {
-		if (this.romBuffer.length === 0 && this.patchBuffer.length === 0) {
+		if (this.sourceBuffer.length === 0 && this.patchBuffer.length === 0) {
 			throw new Error("Patcher is not ready. Make sure to load both files!");
 		}
 
@@ -36,7 +36,7 @@ export default class IPSPatcher extends Patcher {
 
 		// 2. Apply patches
 
-		this.targetArray = Array.from(this.romBuffer);
+		this.targetArray = Array.from(this.sourceBuffer);
 
 		while (this.ptr < this.patchBuffer.length) {
 			const targetOffset = readNumber(this.patchBuffer, this.ptr, IPSPatcher.IPS_OFFSET_SIZE);

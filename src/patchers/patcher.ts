@@ -2,7 +2,7 @@ import Logger from "../logger";
 import { readFileAsBytes } from "./util";
 
 export default class Patcher {
-	protected romBuffer: Uint8Array = new Uint8Array();
+	protected sourceBuffer: Uint8Array = new Uint8Array();
 	protected patchBuffer: Uint8Array = new Uint8Array();
 
 	protected logger: Logger;
@@ -15,7 +15,7 @@ export default class Patcher {
 		return new Promise((resolve, reject) => {
 			readFileAsBytes(file)
 				.then((buffer) => {
-					this.romBuffer = buffer;
+					this.sourceBuffer = buffer;
 					this.logger.println(`Loaded ROM: ${file.name} (${file.size} bytes)`);
 
 					resolve();

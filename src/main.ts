@@ -20,6 +20,7 @@ document.querySelector<HTMLInputElement>("#input_file")!.addEventListener("chang
 	if (!target.files) throw new Error("No files in change event");
 
 	romFile = target.files[0];
+	logger.println(`Selected ROM: ${romFile.name}`);
 
 	document.querySelector<HTMLInputElement>("#input_patch")!.disabled = false;
 });
@@ -30,6 +31,7 @@ document.querySelector<HTMLInputElement>("#input_patch")!.addEventListener("chan
 	if (!target.files) throw new Error("No files in change event");
 
 	patchFile = target.files[0];
+	logger.println(`Selected patch: ${patchFile.name}`);
 
 	document.querySelector<HTMLButtonElement>("#button_apply")!.disabled = false;
 });
